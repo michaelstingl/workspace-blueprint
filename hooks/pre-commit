@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# Pre-commit secret / internal-ref guard. Scans STAGED added lines; blocks the commit on a match.
+# Bypass (rarely, deliberately): git commit --no-verify
+#
+# Per-project extra patterns: put one extended-regex per line in `.git-deny-patterns`
+# at the repo root (e.g. internal client names, host names). Lines starting with # are ignored.
+#
+# Install: copy to .git/hooks/pre-commit (chmod +x). bootstrap.sh does this for you.
+set -uo pipefail
+
+ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
+
+# high-confidence secret patterns (extended regex)
+PATTERNS=(
+  'gh[pousr]_[A-Za-z0-9]{20,}'                # GitHub tokens
+  'github_pat_[A-Za-z0-9_]{20,}'
+  'xox[baprs]-[A-Za-z0-9-]{10,}'              # Slack
+  'sk-[A-Za-z0-9]{20,}'                       # OpenAI-style
+  'AKIA[0-9A-Z]{16}'                          # AWS access key id
+  'AIza[0-9A-Za-z_-]{30,}'                    # Google API key
+  'BEGIN [A-Z ]*PRIVATE KEY'                  # private key blocks
+  '(secret|token|password|passwd|api[_-]?key|bearer)[[:space:]:="-]*[A-Za-z0-9._/+]{16,}'
+)
+
+# project-specific extra patterns (NEVER committed — the local .git-deny-patterns is gitignored;
+# a team can share one privately via $GIT_DENY_PATTERNS pointing into a private/synced folder)
+EXTRA=()
+load_deny() {
+  [ -f "$1" ] || return 0
+  while IFS= read -r line; do
+    [ -n "$line" ] && [ "${line#\#}" = "$line" ] && EXTRA+=("$line")
+  done < "$1"
+}
+load_deny "$ROOT/.git-deny-patterns"
+[ -n "${GIT_DENY_PATTERNS:-}" ] && load_deny "$GIT_DENY_PATTERNS"
+
+# staged added lines (exclude this hook + the denylist so the scanner doesn't flag its own patterns)
+staged="$(git diff --cached --no-color -U0 --diff-filter=ACM -- . ':(exclude)*pre-commit' ':(exclude)*.git-deny-patterns*' \
+          | grep -E '^\+' | grep -vE '^\+\+\+' || true)"
+[ -z "$staged" ] && exit 0
+
+hit=0
+for re in "${PATTERNS[@]}" ${EXTRA[@]+"${EXTRA[@]}"}; do
+  [ -z "$re" ] && continue
+  if printf '%s\n' "$staged" | grep -niE "$re" >/dev/null 2>&1; then
+    echo "✗ pre-commit: possible secret/internal ref  /$re/"
+    printf '%s\n' "$staged" | grep -niE "$re" | head -3 | sed 's/^/      /'
+    hit=1
+  fi
+done
+
+if [ "$hit" -ne 0 ]; then
+  echo ""
+  echo "  Commit blocked. Remove it, or bypass deliberately: git commit --no-verify"
+  exit 1
+fi
+exit 0

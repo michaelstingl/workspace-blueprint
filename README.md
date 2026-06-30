@@ -25,6 +25,12 @@
 bash bootstrap.sh <path-to-a-project>     # scaffold dirs + AGENTS.md + the task-kit symlink (idempotent)
 ```
 
+## Pre-commit secret guard
+
+`hooks/pre-commit` scans staged lines for secrets (GitHub/Slack/OpenAI/AWS/Google tokens, private-key blocks, `key=secret` assignments) and for project-specific internal refs. `bootstrap.sh` installs it into a project's `.git/hooks/`. Bypass deliberately with `git commit --no-verify`. It automates the manual leak-scan that keeps secrets and internal references out of a (public) repo.
+
+**The denylist is never committed.** The internal names you want to hide go in `.git-deny-patterns`, which is **gitignored** (only the `.example` with placeholders is shared) — otherwise the repo would publish exactly what you're hiding. To share a denylist across a team without committing it, keep it in a private/synced folder and point the hook at it: `export GIT_DENY_PATTERNS=/path/to/shared/deny-patterns`. Generic secret patterns live in the hook itself (no secrets there, safe to commit).
+
 ## Layering (no monorepo, no ownership)
 **workspace-blueprint = the mold.** A **project = the instance** (the real parent of its kits). **task-kit = a standalone component** the blueprint composes. A layered family of independent pieces, wired by reference (symlink) — not merged.
 

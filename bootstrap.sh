@@ -30,5 +30,16 @@ if [ ! -e "$LINK" ]; then
   fi
 fi
 
+# pre-commit secret/internal-ref guard
+[ -f "$DEST/.git-deny-patterns" ] || cp "$HERE/.git-deny-patterns.example" "$DEST/.git-deny-patterns"
+# the real denylist lists internal names → keep it out of git
+grep -qxF '.git-deny-patterns' "$DEST/.gitignore" 2>/dev/null || printf '.git-deny-patterns\n' >> "$DEST/.gitignore"
+if [ -d "$DEST/.git" ]; then
+  cp "$HERE/hooks/pre-commit" "$DEST/.git/hooks/pre-commit" && chmod +x "$DEST/.git/hooks/pre-commit"
+  echo "  ✓ installed .git/hooks/pre-commit (secret guard)"
+else
+  echo "  ! no .git yet — after 'git init', run: cp \"$HERE/hooks/pre-commit\" .git/hooks/ && chmod +x .git/hooks/pre-commit"
+fi
+
 echo "✓ workspace scaffolded at $DEST"
 echo "  next: edit AGENTS.md, then create a kit: bun _work/task-kit/new-kit.ts <slug> --title \"…\""

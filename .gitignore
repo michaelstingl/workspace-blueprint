@@ -1,0 +1,3 @@
+.DS_Store
+# the real denylist lists the internal names you are hiding — never commit it (only .example is shared)
+.git-deny-patterns
