@@ -10,6 +10,10 @@ set -uo pipefail
 
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
 
+# --deny-only: skip built-in secret patterns (gitleaks covers those under lefthook), check the denylist only
+DENY_ONLY=0
+[ "${1:-}" = "--deny-only" ] && DENY_ONLY=1
+
 # high-confidence secret patterns (extended regex)
 PATTERNS=(
   'gh[pousr]_[A-Za-z0-9]{20,}'                # GitHub tokens
@@ -39,8 +43,11 @@ staged="$(git diff --cached --no-color -U0 --diff-filter=ACM -- . ':(exclude)*pr
           | grep -E '^\+' | grep -vE '^\+\+\+' || true)"
 [ -z "$staged" ] && exit 0
 
+ALL=()
+[ "$DENY_ONLY" = 1 ] || ALL+=("${PATTERNS[@]}")
+ALL+=(${EXTRA[@]+"${EXTRA[@]}"})
 hit=0
-for re in "${PATTERNS[@]}" ${EXTRA[@]+"${EXTRA[@]}"}; do
+for re in ${ALL[@]+"${ALL[@]}"}; do
   [ -z "$re" ] && continue
   if printf '%s\n' "$staged" | grep -niE "$re" >/dev/null 2>&1; then
     echo "✗ pre-commit: possible secret/internal ref  /$re/"

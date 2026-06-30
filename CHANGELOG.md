@@ -2,6 +2,14 @@
 
 Notable changes to the workspace-blueprint. Format: [Keep a Changelog](https://keepachangelog.com); SemVer.
 
+## 0.3.0
+
+### Changed
+- Pre-commit gate is now **gitleaks + lefthook** (primary, battle-tested): `lefthook.yml` runs `gitleaks protect --staged` (secrets) + an internal-ref denylist check. The hand-rolled `hooks/pre-commit` becomes the **zero-dep fallback** (gains `--deny-only` for the lefthook step). `bootstrap.sh` installs whichever is available. Established practice (gitleaks/lefthook + secrets-out-of-repo), not a bespoke invention.
+
+### Added
+- `lefthook.yml`.
+
 ## 0.2.0
 
 ### Added

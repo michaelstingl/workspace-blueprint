@@ -1,0 +1,16 @@
+# lefthook.yml — pre-commit secret / internal-ref gate (primary path, battle-tested).
+#
+# Setup once per machine:  brew install lefthook gitleaks && lefthook install
+# Bypass deliberately:     git commit --no-verify     (or LEFTHOOK=0 git commit …)
+#
+# If lefthook/gitleaks are not installed, the zero-dep fallback hooks/pre-commit covers it
+# (weaker patterns, no entropy detection) — bootstrap.sh installs whichever is available.
+pre-commit:
+  parallel: true
+  commands:
+    secrets:
+      # gitleaks scans staged changes for tokens/keys/high-entropy secrets (its default ruleset)
+      run: gitleaks protect --staged --redact --no-banner
+    internal-refs:
+      # project-internal names from the gitignored .git-deny-patterns (+ $GIT_DENY_PATTERNS)
+      run: bash hooks/pre-commit --deny-only

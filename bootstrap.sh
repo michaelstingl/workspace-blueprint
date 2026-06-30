@@ -34,11 +34,16 @@ fi
 [ -f "$DEST/.git-deny-patterns" ] || cp "$HERE/.git-deny-patterns.example" "$DEST/.git-deny-patterns"
 # the real denylist lists internal names → keep it out of git
 grep -qxF '.git-deny-patterns' "$DEST/.gitignore" 2>/dev/null || printf '.git-deny-patterns\n' >> "$DEST/.gitignore"
-if [ -d "$DEST/.git" ]; then
+# the hand-rolled hook is used in BOTH paths (zero-dep fallback AND lefthook's --deny-only step)
+mkdir -p "$DEST/hooks" && cp "$HERE/hooks/pre-commit" "$DEST/hooks/pre-commit" && chmod +x "$DEST/hooks/pre-commit"
+if command -v lefthook >/dev/null 2>&1 && command -v gitleaks >/dev/null 2>&1; then
+  cp "$HERE/lefthook.yml" "$DEST/lefthook.yml"
+  ( cd "$DEST" && lefthook install >/dev/null 2>&1 ) && echo "  ✓ gate: lefthook + gitleaks (primary) + internal-ref denylist"
+elif [ -d "$DEST/.git" ]; then
   cp "$HERE/hooks/pre-commit" "$DEST/.git/hooks/pre-commit" && chmod +x "$DEST/.git/hooks/pre-commit"
-  echo "  ✓ installed .git/hooks/pre-commit (secret guard)"
+  echo "  ✓ gate: zero-dep fallback .git/hooks/pre-commit  (stronger: brew install lefthook gitleaks)"
 else
-  echo "  ! no .git yet — after 'git init', run: cp \"$HERE/hooks/pre-commit\" .git/hooks/ && chmod +x .git/hooks/pre-commit"
+  echo "  ! no .git yet — after 'git init': lefthook install (if installed), else cp hooks/pre-commit .git/hooks/"
 fi
 
 echo "✓ workspace scaffolded at $DEST"
