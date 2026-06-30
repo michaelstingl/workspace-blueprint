@@ -51,8 +51,16 @@ Together they automate the manual leak-scan that keeps secrets and internal refe
 ## Layering (no monorepo, no ownership)
 **workspace-blueprint = the mold.** A **project = the instance** (the real parent of its kits). **task-kit = a standalone component** the blueprint composes. A layered family of independent pieces, wired by reference (symlink) — not merged.
 
+## Env-tools
+
+- **`env-tools/reference-sync.ts`** (bun) — manage read-only reference clones from a
+  manifest (`_work/reference/repos.json`) instead of a hand-maintained tree/table:
+  `--sync` clones/updates, default renders the inventory **+ a "where do I look up X?"
+  routing table**, `--check` reports drift. A project's CLAUDE.md just points here.
+  See `env-tools/repos.example.json`.
+
 ## Roadmap
-- Env-tools: generic `repos-sync.sh --root` (one tool for any repo collection) + `reference-sync.sh` + manifest template.
+- Env-tools: `repos-sync` (any repo collection, `--root`) to join `reference-sync`; more manifest templates.
 - Migrate the W3C-PROV gist into versioned templates here.
 - Graduate stable parts → reusable plugins/skills (bootstrap, env-tools, conventions).
 

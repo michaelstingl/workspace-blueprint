@@ -1,0 +1,21 @@
+[
+  {
+    "org": "example-org",
+    "repo": "some-operator",
+    "depth": "full",
+    "branch": "main",
+    "purpose": "the operator (all branches)",
+    "routing": [
+      { "need": "CRD schema / spec fields", "path": "reference/example-org/some-operator/api/v1alpha1/*_types.go" },
+      { "need": "controller / reconcile logic", "path": "reference/example-org/some-operator/internal/" }
+    ]
+  },
+  {
+    "org": "example-org",
+    "repo": "some-client",
+    "depth": "shallow",
+    "purpose": "client library — grep API/source locally",
+    "routing": [ { "need": "public API types", "path": "reference/example-org/some-client/src/" } ]
+  },
+  { "org": "example-org", "repo": "some-operator", "wiki": true, "purpose": "operator wiki (Home, Weekly-meeting)" }
+]

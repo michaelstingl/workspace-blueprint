@@ -2,6 +2,11 @@
 
 Notable changes to the workspace-blueprint. Format: [Keep a Changelog](https://keepachangelog.com); SemVer.
 
+## 0.5.0
+
+### Added
+- `env-tools/reference-sync.ts` (bun) + `env-tools/repos.example.json` — manage read-only reference clones from a JSON manifest (`_work/reference/repos.json`): `--sync` clones/updates, default renders the inventory **+ a "where do I look up X?" routing table**, `--check` reports drift. A project's CLAUDE.md points to the tool instead of hand-maintaining a tree/table.
+
 ## 0.4.0
 
 ### Changed
