@@ -2,6 +2,11 @@
 
 Notable changes to the workspace-blueprint. Format: [Keep a Changelog](https://keepachangelog.com); SemVer.
 
+## 0.3.1
+
+### Changed
+- `.gitignore`: ignore local dev/test scratch (`_work/`, root `project-*/`) so the blueprint can be exercised against throwaway instances while staying generic — project-specific content belongs in the instantiated project, not the template.
+
 ## 0.3.0
 
 ### Changed

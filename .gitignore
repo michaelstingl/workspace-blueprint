@@ -1,3 +1,7 @@
 .DS_Store
 # the real denylist lists the internal names you are hiding — never commit it (only .example is shared)
 .git-deny-patterns
+# local dev/test scratch — never published. The blueprint stays generic; real project content
+# lives in the instantiated project, not here. Bootstrap throwaway test instances under these.
+_work/
+/project-*/
