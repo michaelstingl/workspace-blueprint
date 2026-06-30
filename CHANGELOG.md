@@ -2,6 +2,15 @@
 
 Notable changes to the workspace-blueprint. Format: [Keep a Changelog](https://keepachangelog.com); SemVer.
 
+## 0.4.0
+
+### Changed
+- bootstrap **clones** task-kit + workspace-blueprint into `_work/` by default (update via `git pull` + re-run); `--link` keeps the symlink mode for co-developing the tools. Clone-based consumption is portable/self-contained (no symlink/layout assumption) — fitting now that task-kit is released. `_work/` is gitignored.
+
+### Added
+- bootstrap stamps `_work/.workspace-blueprint-version` (drift visibility).
+- README "Bootstrap & updating" — the linked-vs-copied update model.
+
 ## 0.3.1
 
 ### Changed

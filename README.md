@@ -20,10 +20,23 @@
     task-kit -> …        symlink to the kit primitive
 ```
 
-## Bootstrap
+## Bootstrap & updating
+
 ```sh
-bash bootstrap.sh <path-to-a-project>     # scaffold dirs + AGENTS.md + the task-kit symlink (idempotent)
+bash bootstrap.sh <project>          # scaffold + CLONE task-kit & workspace-blueprint into _work/ (idempotent)
+bash bootstrap.sh --link <project>   # symlink them to sibling clones instead (for co-developing the tools)
 ```
+
+The tools live in `_work/` (gitignored). **Update** by pulling them and re-running bootstrap:
+
+```sh
+git -C _work/task-kit pull && git -C _work/workspace-blueprint pull
+bash _work/workspace-blueprint/bootstrap.sh .   # refreshes copied generic parts (hooks, lefthook.yml);
+                                                #   your AGENTS.md / .git-deny-patterns / content stay
+brew upgrade gitleaks lefthook                  # secret-detection updates come from gitleaks
+```
+
+**Linked vs copied:** the **tools** (task-kit, workspace-blueprint) are cloned and pull-updated; **gitleaks** self-updates via brew; your **customized files** (AGENTS.md, `.git-deny-patterns`, docs/journal) are copied once and stay yours; the **generic managed files** (hooks, `lefthook.yml`) are refreshed by re-running bootstrap. The version used is stamped in `_work/.workspace-blueprint-version`.
 
 ## Pre-commit secret guard
 

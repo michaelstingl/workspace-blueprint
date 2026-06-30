@@ -1,50 +1,62 @@
 #!/usr/bin/env bash
-# Instantiate a project workspace from this blueprint. Idempotent — safe to re-run.
-# Usage: bash bootstrap.sh <project-dir>
+# Instantiate / update a project workspace from this blueprint. Idempotent — safe to re-run.
+#
+# Usage: bash bootstrap.sh [--link] <project-dir>
+#   default : CLONE task-kit + workspace-blueprint into <project>/_work (update later via git pull)
+#   --link  : SYMLINK them to sibling clones instead (for active co-development of the tools)
+#
+# Project content (docs/specs/plans/journal, AGENTS.md) is committed; everything under _work/
+# is personal and gitignored (the cloned tools + your kits live there).
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DEST="${1:?usage: bash bootstrap.sh <project-dir>}"
-mkdir -p "$DEST"
-DEST="$(cd "$DEST" && pwd)"
+
+LINK_MODE=0; ARGS=()
+for a in "$@"; do case "$a" in --link) LINK_MODE=1 ;; *) ARGS+=("$a") ;; esac; done
+DEST="${ARGS[0]:?usage: bash bootstrap.sh [--link] <project-dir>}"
+mkdir -p "$DEST"; DEST="$(cd "$DEST" && pwd)"
 
 # committed structure + personal scratch
 mkdir -p "$DEST"/{docs,specs,plans,journal,_work/kits,_work/kit-archive}
-
-# project AGENTS.md from template (never overwrite an existing one)
 [ -f "$DEST/AGENTS.md" ] || cp "$HERE/template/AGENTS.md" "$DEST/AGENTS.md"
-
-# journal README
 [ -f "$DEST/journal/README.md" ] || printf '# Journal\n\nOne short entry per PR, newest first.\n' > "$DEST/journal/README.md"
 
-# task-kit symlink (relative; default assumes the sibling layout .../<owner>/ + michaelstingl/task-kit)
-LINK="$DEST/_work/task-kit"
-if [ ! -e "$LINK" ]; then
-  ln -s ../../michaelstingl/task-kit "$LINK"
-  if [ -e "$LINK/board.ts" ]; then
-    echo "  ✓ _work/task-kit -> ../../michaelstingl/task-kit"
-  else
-    rm -f "$LINK"
-    echo "  ! couldn't resolve task-kit from this layout — link it manually:"
-    echo "      ln -s <relative-path-to>/michaelstingl/task-kit $LINK"
-  fi
-fi
+# _work is personal — never tracked
+grep -qxF '_work/' "$DEST/.gitignore" 2>/dev/null || printf '_work/\n' >> "$DEST/.gitignore"
 
-# pre-commit secret/internal-ref guard
+# --- consume the tools: clone into _work (default) or symlink (--link, for co-dev) ---
+ensure_dep() {  # $1=name  $2=clone-url  $3=symlink-target
+  local dir="$DEST/_work/$1"
+  if [ "$LINK_MODE" = 1 ]; then
+    [ -e "$dir" ] || { ln -s "$3" "$dir" && echo "  ✓ linked _work/$1 -> $3"; }
+  elif [ -d "$dir/.git" ]; then
+    ( git -C "$dir" pull --ff-only -q && echo "  ✓ updated _work/$1" ) || echo "  ! _work/$1 pull skipped"
+  elif [ -e "$dir" ]; then
+    echo "  ! _work/$1 exists but is not a git clone — leaving it"
+  else
+    ( git clone -q "$2" "$dir" && echo "  ✓ cloned _work/$1" ) || echo "  ! clone failed: $1"
+  fi
+}
+ensure_dep task-kit            "https://github.com/michaelstingl/task-kit"            "../../michaelstingl/task-kit"
+ensure_dep workspace-blueprint "https://github.com/michaelstingl/workspace-blueprint" "../../michaelstingl/workspace-blueprint"
+
+# stamp the blueprint version this project was set up / refreshed with (drift visibility; gitignored)
+( cd "$HERE" && git describe --tags --always 2>/dev/null ) > "$DEST/_work/.workspace-blueprint-version" 2>/dev/null || true
+
+# --- pre-commit secret / internal-ref guard ---
 [ -f "$DEST/.git-deny-patterns" ] || cp "$HERE/.git-deny-patterns.example" "$DEST/.git-deny-patterns"
-# the real denylist lists internal names → keep it out of git
 grep -qxF '.git-deny-patterns' "$DEST/.gitignore" 2>/dev/null || printf '.git-deny-patterns\n' >> "$DEST/.gitignore"
-# the hand-rolled hook is used in BOTH paths (zero-dep fallback AND lefthook's --deny-only step)
 mkdir -p "$DEST/hooks" && cp "$HERE/hooks/pre-commit" "$DEST/hooks/pre-commit" && chmod +x "$DEST/hooks/pre-commit"
 if command -v lefthook >/dev/null 2>&1 && command -v gitleaks >/dev/null 2>&1; then
   cp "$HERE/lefthook.yml" "$DEST/lefthook.yml"
-  ( cd "$DEST" && lefthook install >/dev/null 2>&1 ) && echo "  ✓ gate: lefthook + gitleaks (primary) + internal-ref denylist"
+  ( cd "$DEST" && lefthook install >/dev/null 2>&1 ) && echo "  ✓ gate: lefthook + gitleaks + internal-ref denylist"
 elif [ -d "$DEST/.git" ]; then
   cp "$HERE/hooks/pre-commit" "$DEST/.git/hooks/pre-commit" && chmod +x "$DEST/.git/hooks/pre-commit"
   echo "  ✓ gate: zero-dep fallback .git/hooks/pre-commit  (stronger: brew install lefthook gitleaks)"
 else
-  echo "  ! no .git yet — after 'git init': lefthook install (if installed), else cp hooks/pre-commit .git/hooks/"
+  echo "  ! no .git yet — install the gate after 'git init' (lefthook install, or cp hooks/pre-commit .git/hooks/)"
 fi
 
-echo "✓ workspace scaffolded at $DEST"
-echo "  next: edit AGENTS.md, then create a kit: bun _work/task-kit/new-kit.ts <slug> --title \"…\""
+echo "✓ workspace ready at $DEST"
+echo "  update later:  git -C _work/task-kit pull && git -C _work/workspace-blueprint pull   (then re-run bootstrap)"
+echo "  create a kit:  bun _work/task-kit/new-kit.ts <slug> --title \"…\""
