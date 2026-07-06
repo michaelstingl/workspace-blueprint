@@ -39,23 +39,27 @@ const dirOf = (r: Repo) => join(root, r.org, nameOf(r))
 const urlOf = (r: Repo) => `git@github.com:${r.org}/${r.repo}${r.wiki ? ".wiki" : ""}.git`
 
 if (has("--sync")) {
+  let cloned = 0, updated = 0, failed = 0
   for (const r of repos) {
     const dir = dirOf(r)
     try {
       if (existsSync(join(dir, ".git"))) {
         execSync(`git -C "${dir}" pull --ff-only -q`, { stdio: "pipe" })
-        console.log(`  ✓ updated ${r.org}/${nameOf(r)}`)
+        console.log(`  ✓ updated ${r.org}/${nameOf(r)}`); updated++
       } else {
         const depth = r.depth === "full" ? "" : "--depth 1"
         const branch = r.branch ? `--branch ${r.branch}` : ""
         execSync(`git clone -q ${depth} ${branch} "${urlOf(r)}" "${dir}"`, { stdio: "pipe" })
-        console.log(`  ✓ cloned ${r.org}/${nameOf(r)} (${r.depth ?? "shallow"})`)
+        console.log(`  ✓ cloned ${r.org}/${nameOf(r)} (${r.depth ?? "shallow"})`); cloned++
       }
     } catch (e) {
-      console.log(`  ! ${r.org}/${nameOf(r)}: ${(e as Error).message.split("\n")[0]}`)
+      console.log(`  ! ${r.org}/${nameOf(r)}: ${(e as Error).message.split("\n")[0]}`); failed++
     }
   }
-  process.exit(0)
+  // Summarise + point to the next action; exit non-zero if any repo failed so a harness does
+  // not read a partial sync as success (previously it always exited 0).
+  console.log(`\n${repos.length} repo(s): ${cloned} cloned, ${updated} updated${failed ? `, ${failed} failed` : ""} · drift-check: --check`)
+  process.exit(failed ? 1 : 0)
 }
 
 if (has("--check")) {
