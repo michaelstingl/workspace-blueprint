@@ -2,6 +2,11 @@
 
 Notable changes to the workspace-blueprint. Format: [Keep a Changelog](https://keepachangelog.com); SemVer.
 
+## 0.6.0
+
+### Added
+- **Named convention: what a project instance holds vs references.** README and `template/AGENTS.md` now make explicit that the instance is the real parent of its content, and provide the slots for both: `docs/` holds the project's own **dev-env / toolchain / CI** setup (e.g. `docs/cluster/`, `docs/toolchain/`) alongside its current-state knowledge; `_work/reference/` holds read-only external clones (via `reference-sync`); `_work/upstream/<org>/<repo>.md` holds per-upstream-repo contribution notes. `reference/` is what you read, `upstream/<org>/<repo>.md` is how you contribute back. Codifies a convention already lived across multiple projects. Doc-only; no scaffold/behaviour change.
+
 ## 0.5.0
 
 ### Added

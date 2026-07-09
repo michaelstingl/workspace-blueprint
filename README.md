@@ -14,11 +14,23 @@
 <project>/
   AGENTS.md             entry → guide + task-kit + PD skills
   docs/  specs/  plans/  committed knowledge (current state / intent / multi-step)
+                        docs/ also holds this project's dev-env / toolchain / CI (e.g. docs/cluster/)
   journal/              per-PR journal (one short entry per PR)
   _work/                personal, gitignored
     kits/  kit-archive/
     task-kit -> …        symlink to the kit primitive
+    reference/          read-only external clones (managed by reference-sync)
+    upstream/<org>/<repo>.md   per-upstream-repo contribution notes
 ```
+
+### What the instance holds vs references
+
+The blueprint is the mold; **a project instance is the real parent of its content** — so it either *holds* project-specific knowledge or *references* it, and the mold provides the slots for both.
+
+- **Holds (committed):** `specs/` intent · `docs/` current-state team knowledge — *including the project's own dev-env / toolchain / CI setup* (e.g. `docs/cluster/`, `docs/toolchain/`). This is project-specific: it does not belong in the generic tooling, nor in another project's docs.
+- **References (personal, under gitignored `_work/`):** read-only external repos in `_work/reference/` (managed by `reference-sync`, with a "where do I look up X?" routing table); and per-upstream-repo contribution notes — DCO/RFC/branch mechanics for a repo you send PRs to — in `_work/upstream/<org>/<repo>.md`.
+
+`reference/` is what you *read*; `upstream/<org>/<repo>.md` is how you *contribute back*. Keeping them distinct stops upstream mechanics from leaking into read-only reference notes.
 
 ## Bootstrap & updating
 
