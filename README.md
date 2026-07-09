@@ -48,7 +48,15 @@ bash _work/workspace-blueprint/bootstrap.sh .   # refreshes copied generic parts
 brew upgrade gitleaks lefthook                  # secret-detection updates come from gitleaks
 ```
 
-**Linked vs copied:** the **tools** (task-kit, workspace-blueprint) are cloned and pull-updated; **gitleaks** self-updates via brew; your **customized files** (AGENTS.md, `.git-deny-patterns`, docs/journal) are copied once and stay yours; the **generic managed files** (hooks, `lefthook.yml`) are refreshed by re-running bootstrap. The version used is stamped in `_work/.workspace-blueprint-version`.
+**No git coupling.** Your project has its **own** git remote; the blueprint is not a remote, fork, or upstream of it. The tools live as gitignored clones (or `--link` symlinks) under `_work/` and update independently — you never `git pull` the blueprint *into* your project.
+
+**What you can edit, and what gets refreshed:**
+
+| Safe to edit — bootstrap never touches it | Managed — overwritten on every re-run |
+|---|---|
+| `AGENTS.md`, `.git-deny-patterns`, and all your content (`docs/` `specs/` `plans/` `journal/` `_work/kits/`) | `hooks/pre-commit`, `lefthook.yml` |
+
+Customize the left column freely. **Do not edit the right column locally — your changes are overwritten on the next bootstrap;** change that behaviour in the blueprint itself, or (for your own deny-list) in `.git-deny-patterns`. The **tools** (task-kit, workspace-blueprint) are pull-updated; **gitleaks** self-updates via brew; the blueprint version is stamped in `_work/.workspace-blueprint-version`.
 
 ## Pre-commit secret guard
 

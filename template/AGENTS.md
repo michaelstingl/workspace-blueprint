@@ -18,6 +18,7 @@
 - Overview: `bun _work/task-kit/board.ts` (`--todos`, `--all`) · upstream movement: `bun _work/task-kit/watch.ts`.
 - `_work/` is personal and gitignored: read-only external clones → `_work/reference/` (via `reference-sync`); per-upstream-repo contribution notes → `_work/upstream/<org>/<repo>.md`.
 - **Adding project-specific knowledge** (a tool, a testing stack, a dev-env, upstream-contribution notes) — *what goes where, in what shape* → `_work/workspace-blueprint/CONVENTIONS.md`. Copy the skeleton's shape; don't just guess a location.
+- **Updating / customizing this workspace** — what's safe to edit vs. what bootstrap refreshes, and why there's no git coupling to the blueprint → see the blueprint README, *Bootstrap & updating* / *No git coupling*.
 
 ## Project-specific rules
 
