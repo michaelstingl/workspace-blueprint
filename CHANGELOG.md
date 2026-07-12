@@ -7,6 +7,11 @@ Notable changes to the workspace-blueprint. Format: [Keep a Changelog](https://k
 ### Added
 - **`CONVENTIONS.md` — grammar for adding project-specific knowledge to an instance.** Codifies *what goes where, in what shape* for the knowledge an instance accumulates, primarily **testing & tooling** (per-tool notes in `docs/toolchain/<tool>.md`; dev-env/CI in `docs/`; a test-ladder in `docs/TEST-STACKS.md`), secondarily **upstream & contribution** (per-repo notes in `_work/upstream/<org>/<repo>.md`, splitting *enforced* from *convention*). Each pattern ships a **neutral skeleton** to copy — the principle is *show the shape, don't just name the slot*, since naming a slot alone has led instances to diverge (flat files, ad-hoc testing). `template/AGENTS.md` points at it. Generic only; real domain content lives in the instance. An auto-firing skill is out of scope (deferred).
 
+## 0.6.1
+
+### Changed
+- **README update/customize model made unmistakable.** A new **No git coupling** note states plainly that a project has its own git remote and the blueprint is not a remote/fork/upstream of it. The dense "Linked vs copied" sentence becomes a scannable table (safe-to-edit vs. refreshed-on-re-run) with an explicit warning that local edits to the managed files (`hooks/pre-commit`, `lefthook.yml`) are overwritten on the next bootstrap. `template/AGENTS.md` gains a pointer to this model (an agent often reads only `AGENTS.md`). Doc-only; no scaffold/behaviour change.
+
 ## 0.6.0
 
 ### Added
