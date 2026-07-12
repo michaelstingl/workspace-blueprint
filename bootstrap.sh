@@ -19,6 +19,9 @@ mkdir -p "$DEST"; DEST="$(cd "$DEST" && pwd)"
 # committed structure + personal scratch
 mkdir -p "$DEST"/{docs,specs,plans,journal,_work/kits,_work/kit-archive}
 [ -f "$DEST/AGENTS.md" ] || cp "$HERE/template/AGENTS.md" "$DEST/AGENTS.md"
+# CLAUDE.md -> AGENTS.md so a harness that auto-loads CLAUDE.md still sees the routing head.
+# Skip if the project already has its own CLAUDE.md (do not clobber it).
+[ -e "$DEST/CLAUDE.md" ] || { ln -s AGENTS.md "$DEST/CLAUDE.md" && echo "  ✓ CLAUDE.md -> AGENTS.md (routing head auto-loads)"; }
 [ -f "$DEST/journal/README.md" ] || printf '# Journal\n\nOne short entry per PR, newest first.\n' > "$DEST/journal/README.md"
 
 # _work is personal — never tracked

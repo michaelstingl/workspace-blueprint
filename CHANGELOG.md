@@ -2,6 +2,11 @@
 
 Notable changes to the workspace-blueprint. Format: [Keep a Changelog](https://keepachangelog.com); SemVer.
 
+## 0.8.0
+
+### Added
+- **bootstrap seeds a `CLAUDE.md -> AGENTS.md` symlink.** A harness that auto-loads `CLAUDE.md` (e.g. Claude Code) then still picks up the routing head that lives in `AGENTS.md` — without it a fresh session may never read the entry point and the agent fails to orient. Skipped if the project already has its own `CLAUDE.md` (not clobbered). Makes "a new agent re-orients every session" reliable rather than harness-dependent.
+
 ## 0.7.0
 
 ### Added
