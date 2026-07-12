@@ -2,7 +2,7 @@
 
 > The scaffold for a project workspace — folders, conventions, and tooling — that **composes** task-kit, a method-skills layer, and the W3C-PROV documentation architecture. A new project gets a consistent, agent-readable workspace from one template.
 
-**Status:** 0.7.0 — incubator / WIP (see [CHANGELOG](./CHANGELOG.md)). The grundgerüst matures here; stable parts graduate into reusable plugins/skills.
+**Status:** incubator / WIP — the grundgerüst matures here; stable parts graduate into reusable plugins/skills. Current version: [CHANGELOG](./CHANGELOG.md) · [releases](https://github.com/michaelstingl/workspace-blueprint/releases).
 
 ## What it composes (references, does not duplicate)
 - **[task-kit](https://github.com/michaelstingl/task-kit)** — the per-problem kit primitive (`_work/kits/`) + board/scaffolder/watch tooling.
