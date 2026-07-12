@@ -2,6 +2,11 @@
 
 Notable changes to the workspace-blueprint. Format: [Keep a Changelog](https://keepachangelog.com); SemVer.
 
+## 0.7.0
+
+### Added
+- **`CONVENTIONS.md` — grammar for adding project-specific knowledge to an instance.** Codifies *what goes where, in what shape* for the knowledge an instance accumulates, primarily **testing & tooling** (per-tool notes in `docs/toolchain/<tool>.md`; dev-env/CI in `docs/`; a test-ladder in `docs/TEST-STACKS.md`), secondarily **upstream & contribution** (per-repo notes in `_work/upstream/<org>/<repo>.md`, splitting *enforced* from *convention*). Each pattern ships a **neutral skeleton** to copy — the principle is *show the shape, don't just name the slot*, since naming a slot alone has led instances to diverge (flat files, ad-hoc testing). `template/AGENTS.md` points at it. Generic only; real domain content lives in the instance. An auto-firing skill is out of scope (deferred).
+
 ## 0.6.0
 
 ### Added

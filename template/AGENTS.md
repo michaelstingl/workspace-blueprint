@@ -17,6 +17,7 @@
 - Project-specific **dev-env / toolchain / CI** setup is current-state knowledge → `docs/` (e.g. `docs/cluster/`, `docs/toolchain/`). It stays with the project; it does not go into the generic tooling or another project's docs.
 - Overview: `bun _work/task-kit/board.ts` (`--todos`, `--all`) · upstream movement: `bun _work/task-kit/watch.ts`.
 - `_work/` is personal and gitignored: read-only external clones → `_work/reference/` (via `reference-sync`); per-upstream-repo contribution notes → `_work/upstream/<org>/<repo>.md`.
+- **Adding project-specific knowledge** (a tool, a testing stack, a dev-env, upstream-contribution notes) — *what goes where, in what shape* → `_work/workspace-blueprint/CONVENTIONS.md`. Copy the skeleton's shape; don't just guess a location.
 
 ## Project-specific rules
 
