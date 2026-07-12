@@ -2,6 +2,11 @@
 
 Notable changes to the workspace-blueprint. Format: [Keep a Changelog](https://keepachangelog.com); SemVer.
 
+## 0.9.0
+
+### Changed
+- **bootstrap is safe by default (dry-run); mutating requires `--apply`.** Running `bash bootstrap.sh <project>` now only prints the plan and changes nothing — so reading it, or an agent running it casually on a "have a look" instruction, can no longer surprise you by scaffolding dirs, cloning repos, and installing hooks. Pass `--apply` (or `-y`) to actually perform it. Consequences are shown before any change, in the tool itself, rather than relying on the caller to know them.
+
 ## 0.8.0
 
 ### Added

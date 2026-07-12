@@ -35,15 +35,18 @@ The blueprint is the mold; **a project instance is the real parent of its conten
 ## Bootstrap & updating
 
 ```sh
-bash bootstrap.sh <project>          # scaffold + CLONE task-kit & workspace-blueprint into _work/ (idempotent)
-bash bootstrap.sh --link <project>   # symlink them to sibling clones instead (for co-developing the tools)
+bash bootstrap.sh <project>                  # DRY-RUN — print what it would do, change nothing (safe)
+bash bootstrap.sh --apply <project>          # scaffold + CLONE task-kit & workspace-blueprint into _work/ (idempotent)
+bash bootstrap.sh --apply --link <project>   # symlink them to sibling clones instead (for co-developing the tools)
 ```
+
+**Safe by default:** without `--apply`, bootstrap only prints its plan and changes nothing — so reading or casually running it never mutates your filesystem.
 
 The tools live in `_work/` (gitignored). **Update** by pulling them and re-running bootstrap:
 
 ```sh
 git -C _work/task-kit pull && git -C _work/workspace-blueprint pull
-bash _work/workspace-blueprint/bootstrap.sh .   # refreshes copied generic parts (hooks, lefthook.yml);
+bash _work/workspace-blueprint/bootstrap.sh --apply .   # refreshes copied generic parts (hooks, lefthook.yml);
                                                 #   your AGENTS.md / .git-deny-patterns / content stay
 brew upgrade gitleaks lefthook                  # secret-detection updates come from gitleaks
 ```
