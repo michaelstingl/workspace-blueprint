@@ -1,18 +1,18 @@
 # workspace-blueprint
 
-> The scaffold for a project workspace — folders, conventions, and tooling — that **composes** task-kit, a method-skills layer, and the W3C-PROV documentation architecture. A new project gets a consistent, agent-readable workspace from one template.
+> The scaffold for a project workspace — folders, conventions, and tooling. From one template a new project gets a consistent, agent-readable workspace: task-kit for per-problem kits, a set of docs/specs conventions, and a secret-guarded git setup.
 
 **Status:** incubator / WIP — the grundgerüst matures here; stable parts graduate into reusable plugins/skills. Current version: [CHANGELOG](./CHANGELOG.md) · [releases](https://github.com/michaelstingl/workspace-blueprint/releases).
 
 ## What it composes (references, does not duplicate)
 - **[task-kit](https://github.com/michaelstingl/task-kit)** — the per-problem kit primitive (`_work/kits/`) + board/scaffolder/watch tooling.
-- **A method-skills layer** — spec-driven / test-first work, a per-PR journal, docs & specs conventions, tutorials (the generic "how we work"; wired in per project).
-- **[W3C-PROV documentation architecture](https://gist.github.com/michaelstingl/d915a88fad79469796320f5bd6d34821)** — the `docs/`/`specs/`/`references` conventions.
+- **Conventions for how you work** — `CONVENTIONS.md` (where project-specific knowledge goes), the `docs/`/`specs/`/`plans/`/`journal/` roles, and a secret-guarded git setup — wired in per project. *(An auto-firing method-skills layer — the WORKFLOW / verify-before-claim discipline as skills — is planned, not here yet; see Roadmap.)*
+- **A docs/specs documentation guide** (PROV-inspired) — currently an external [gist](https://gist.github.com/michaelstingl/d915a88fad79469796320f5bd6d34821); migrating into versioned templates here (Roadmap).
 
 ## A project workspace (instantiated from `template/`)
 ```
 <project>/
-  AGENTS.md             entry → guide + task-kit + PD skills
+  AGENTS.md             entry → guide + task-kit + conventions
   docs/  specs/  plans/  committed knowledge (current state / intent / multi-step)
                         docs/ also holds this project's dev-env / toolchain / CI (e.g. docs/cluster/)
   journal/              per-PR journal (one short entry per PR)

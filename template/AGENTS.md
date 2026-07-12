@@ -1,9 +1,9 @@
 # AGENTS.md — <project>
 
-> **Architecture:** W3C-PROV documentation architecture + the task-kit working convention.
+> **Conventions:** a docs/specs documentation guide + the task-kit working convention.
 > **Required reading (first contact, in order):**
 >   1. This file
->   2. The architecture guide — https://gist.github.com/michaelstingl/d915a88fad79469796320f5bd6d34821
+>   2. The documentation guide — https://gist.github.com/michaelstingl/d915a88fad79469796320f5bd6d34821
 >   3. task-kit — https://github.com/michaelstingl/task-kit (kits live in `_work/kits/`)
 
 ## What this project is

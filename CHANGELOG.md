@@ -2,6 +2,11 @@
 
 Notable changes to the workspace-blueprint. Format: [Keep a Changelog](https://keepachangelog.com); SemVer.
 
+## 0.9.1
+
+### Changed
+- **De-vapor + drop a stray internal reference from the public docs.** README/AGENTS no longer advertise a "method-skills layer" as if it exists (it is planned, not built — now labelled as such) nor call the docs/specs gist a grand "W3C-PROV documentation architecture" (described plainly as an external documentation guide). A leftover "PD skills" reference in the README tree is genericised to "conventions". Doc-only; the repo now advertises only what it delivers.
+
 ## 0.9.0
 
 ### Changed
