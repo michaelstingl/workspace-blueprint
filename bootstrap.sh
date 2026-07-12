@@ -1,19 +1,38 @@
 #!/usr/bin/env bash
 # Instantiate / update a project workspace from this blueprint. Idempotent — safe to re-run.
 #
-# Usage: bash bootstrap.sh [--link] <project-dir>
-#   default : CLONE task-kit + workspace-blueprint into <project>/_work (update later via git pull)
-#   --link  : SYMLINK them to sibling clones instead (for active co-development of the tools)
+# Usage: bash bootstrap.sh [--link] [--apply] <project-dir>
+#   (no --apply) : DRY-RUN — print what would happen and change nothing (safe to run casually)
+#   --apply      : actually scaffold + consume the tools (idempotent, safe to re-run)
+#   --link       : SYMLINK the tools to sibling clones instead of cloning (for co-developing them)
 #
+# Safe by default: reading/running this without --apply never mutates your filesystem.
 # Project content (docs/specs/plans/journal, AGENTS.md) is committed; everything under _work/
 # is personal and gitignored (the cloned tools + your kits live there).
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-LINK_MODE=0; ARGS=()
-for a in "$@"; do case "$a" in --link) LINK_MODE=1 ;; *) ARGS+=("$a") ;; esac; done
-DEST="${ARGS[0]:?usage: bash bootstrap.sh [--link] <project-dir>}"
+LINK_MODE=0; APPLY=0; ARGS=()
+for a in "$@"; do case "$a" in --link) LINK_MODE=1 ;; --apply|-y) APPLY=1 ;; *) ARGS+=("$a") ;; esac; done
+DEST="${ARGS[0]:?usage: bash bootstrap.sh [--link] [--apply] <project-dir>}"
+
+# Safe by default: without --apply, print what WOULD happen and change nothing.
+if [ "$APPLY" != 1 ]; then
+  printf 'bootstrap (dry-run) — target: %s  [mode: %s]\n' "$DEST" "$([ "$LINK_MODE" = 1 ] && echo symlink || echo clone)"
+  cat <<'PLAN'
+would (nothing is changed yet):
+  · create docs/ specs/ plans/ journal/ _work/kits/ _work/kit-archive/
+  · seed AGENTS.md + CLAUDE.md->AGENTS.md symlink + journal/README.md
+  · consume task-kit + workspace-blueprint into _work/ (clone, or symlink with --link)
+  · add _work/ + .git-deny-patterns to .gitignore
+  · install the pre-commit secret gate (lefthook/gitleaks, or the zero-dep fallback hook)
+  · stamp _work/.workspace-blueprint-version
+re-run with --apply to do it.
+PLAN
+  exit 0
+fi
+
 mkdir -p "$DEST"; DEST="$(cd "$DEST" && pwd)"
 
 # committed structure + personal scratch
