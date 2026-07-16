@@ -26,7 +26,7 @@ would (nothing is changed yet):
   · seed AGENTS.md + CLAUDE.md->AGENTS.md symlink + journal/README.md
   · consume task-kit + workspace-blueprint into _work/ (clone, or symlink with --link)
   · add _work/ + .git-deny-patterns to .gitignore
-  · install the pre-commit secret gate (lefthook/gitleaks, or the zero-dep fallback hook)
+  · install the pre-commit secret gate (lefthook/betterleaks, or the fallback hook)
   · stamp _work/.workspace-blueprint-version
 re-run with --apply to do it.
 PLAN
@@ -69,12 +69,20 @@ ensure_dep workspace-blueprint "https://github.com/michaelstingl/workspace-bluep
 [ -f "$DEST/.git-deny-patterns" ] || cp "$HERE/.git-deny-patterns.example" "$DEST/.git-deny-patterns"
 grep -qxF '.git-deny-patterns' "$DEST/.gitignore" 2>/dev/null || printf '.git-deny-patterns\n' >> "$DEST/.gitignore"
 mkdir -p "$DEST/hooks" && cp "$HERE/hooks/pre-commit" "$DEST/hooks/pre-commit" && chmod +x "$DEST/hooks/pre-commit"
-if command -v lefthook >/dev/null 2>&1 && command -v gitleaks >/dev/null 2>&1; then
+if [ -f "$DEST/.git" ]; then
+  # `$DEST/.git` is a FILE, not a dir → this is a LINKED WORKTREE whose .git/hooks are the
+  # SHARED common dir. Installing hooks here (lefthook install, or writing .git/hooks) would
+  # clobber the hooks of EVERY worktree of the repo (a worktree's .git is a file pointing at
+  # the shared common dir, so hook writes are repo-global, not worktree-local).
+  # Refuse; the tracked hooks/ + .git-deny-patterns above are already in place for the main checkout.
+  echo "  ! $DEST is a linked git worktree (shared .git) — NOT installing hooks here."
+  echo "    That would overwrite every worktree's .git/hooks. Run bootstrap from the repo's MAIN checkout."
+elif command -v lefthook >/dev/null 2>&1 && command -v betterleaks >/dev/null 2>&1; then
   cp "$HERE/lefthook.yml" "$DEST/lefthook.yml"
-  ( cd "$DEST" && lefthook install >/dev/null 2>&1 ) && echo "  ✓ gate: lefthook + gitleaks + internal-ref denylist"
+  ( cd "$DEST" && lefthook install >/dev/null 2>&1 ) && echo "  ✓ gate: lefthook + betterleaks + internal-ref denylist"
 elif [ -d "$DEST/.git" ]; then
   cp "$HERE/hooks/pre-commit" "$DEST/.git/hooks/pre-commit" && chmod +x "$DEST/.git/hooks/pre-commit"
-  echo "  ✓ gate: zero-dep fallback .git/hooks/pre-commit  (stronger: brew install lefthook gitleaks)"
+  echo "  ✓ gate: fallback .git/hooks/pre-commit  (betterleaks if installed; stronger: brew install lefthook betterleaks)"
 else
   echo "  ! no .git yet — install the gate after 'git init' (lefthook install, or cp hooks/pre-commit .git/hooks/)"
 fi
