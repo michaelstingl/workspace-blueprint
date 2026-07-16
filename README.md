@@ -48,7 +48,7 @@ The tools live in `_work/` (gitignored). **Update** by pulling them and re-runni
 git -C _work/task-kit pull && git -C _work/workspace-blueprint pull
 bash _work/workspace-blueprint/bootstrap.sh --apply .   # refreshes copied generic parts (hooks, lefthook.yml);
                                                 #   your AGENTS.md / .git-deny-patterns / content stay
-brew upgrade gitleaks lefthook                  # secret-detection updates come from gitleaks
+brew upgrade betterleaks lefthook               # secret-detection updates come from betterleaks
 ```
 
 **No git coupling.** Your project has its **own** git remote; the blueprint is not a remote, fork, or upstream of it. The tools live as gitignored clones (or `--link` symlinks) under `_work/` and update independently — you never `git pull` the blueprint *into* your project.
@@ -59,13 +59,13 @@ brew upgrade gitleaks lefthook                  # secret-detection updates come 
 |---|---|
 | `AGENTS.md`, `.git-deny-patterns`, and all your content (`docs/` `specs/` `plans/` `journal/` `_work/kits/`) | `hooks/pre-commit`, `lefthook.yml` |
 
-Customize the left column freely. **Do not edit the right column locally — your changes are overwritten on the next bootstrap;** change that behaviour in the blueprint itself, or (for your own deny-list) in `.git-deny-patterns`. The **tools** (task-kit, workspace-blueprint) are pull-updated; **gitleaks** self-updates via brew; the blueprint version is stamped in `_work/.workspace-blueprint-version`.
+Customize the left column freely. **Do not edit the right column locally — your changes are overwritten on the next bootstrap;** change that behaviour in the blueprint itself, or (for your own deny-list) in `.git-deny-patterns`. The **tools** (task-kit, workspace-blueprint) are pull-updated; **betterleaks** self-updates via brew; the blueprint version is stamped in `_work/.workspace-blueprint-version`.
 
 ## Pre-commit secret guard
 
-**Primary (recommended): [gitleaks](https://github.com/gitleaks/gitleaks) via [lefthook](https://github.com/evilmartians/lefthook)** — the battle-tested secret scanner + hook manager. `lefthook.yml` runs `gitleaks protect --staged` (tokens/keys/entropy) plus an internal-ref check. Setup once per machine: `brew install lefthook gitleaks && lefthook install`.
+**Primary (recommended): [betterleaks](https://github.com/betterleaks/betterleaks) via [lefthook](https://github.com/evilmartians/lefthook)** — the maintained secret scanner (successor to gitleaks, which went feature-complete in Feb 2026) + hook manager. `lefthook.yml` runs `betterleaks git --staged` (tokens/keys/entropy) plus an internal-ref check. Setup once per machine: `brew install lefthook betterleaks && lefthook install`.
 
-**Zero-dep fallback:** if those aren't installed, `hooks/pre-commit` (a small hand-rolled regex scanner) covers it — weaker (no entropy detection), no install needed. `bootstrap.sh` installs whichever is available. Bypass deliberately with `git commit --no-verify`.
+**Fallback:** if lefthook isn't set up, `hooks/pre-commit` runs the same `betterleaks git --staged` scan directly, plus the zero-dep `.git-deny-patterns` denylist. If **betterleaks itself is not installed**, the hook does **not** silently pass and it does **not** hand-roll a weaker regex scan — it prints a loud warning that generic-secret scanning is OFF for that commit (the CI leak-scan is the always-on net for that case) and still runs the denylist zero-dep. The denylist (project internal/stealth names) always runs regardless. `bootstrap.sh` installs whichever hook path is available. Bypass deliberately with `git commit --no-verify`.
 
 Together they automate the manual leak-scan that keeps secrets and internal references out of a (public) repo.
 

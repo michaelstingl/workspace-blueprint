@@ -2,6 +2,17 @@
 
 Notable changes to the workspace-blueprint. Format: [Keep a Changelog](https://keepachangelog.com); SemVer.
 
+## 0.10.0
+
+### Changed
+- **The leak gate now sources generic-secret patterns from `betterleaks`, not a hand-maintained regex list.** The `hooks/pre-commit` fallback previously carried ~8 hardcoded token regexes; a hand-copied subset silently rots (it misses new provider-token shapes — e.g. GitHub's 2021 `ghp_` format change), and maintaining it duplicated what a scanner already curates. The hook now calls `betterleaks git --staged` for generic secrets; pinning the betterleaks version pins the patterns. The zero-dep `.git-deny-patterns` denylist (project internal/stealth names, which no upstream scanner can know) is **unchanged** and still always runs.
+- **`bootstrap.sh` refuses to install hooks into a linked git worktree.** A worktree's `.git` is a file pointing at the repo's shared common dir, so `lefthook install` / writing `.git/hooks` there clobbers the hooks of every worktree of the repo (a worktree's `.git` is a file pointing at the shared common dir, so a hook write is repo-global). It now detects `$DEST/.git` being a file and skips hook install with a message pointing at the main checkout.
+- **`betterleaks` replaces `gitleaks`** across the gate (`lefthook.yml`, `bootstrap.sh`, README). betterleaks is the maintained successor by gitleaks' original author — gitleaks went feature-complete (security-patches-only) in Feb 2026, so new-token-format tracking now lives in betterleaks (Aikido-backed, MIT). Not a drop-in: `betterleaks git .` source-subcommand CLI, not `gitleaks detect --source=.`.
+
+### Migration
+- `brew install betterleaks` (and `brew uninstall gitleaks` once no repo references it). Re-run `bootstrap.sh --apply` to refresh the installed hook, or `cp hooks/pre-commit .git/hooks/`.
+- If betterleaks is not installed, the hook **loudly warns** that generic-secret scanning is off for that commit (it does not silently pass, and does not block on the missing tool — the CI leak-scan is the always-on net). The denylist still runs zero-dep.
+
 ## 0.9.1
 
 ### Changed
